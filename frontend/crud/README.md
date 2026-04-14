@@ -1,16 +1,43 @@
-# React + Vite
+📦 Full Stack MERN App (React + Vite + Node.js)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern full-stack web application built with React (Vite) frontend and Node.js + Express + MongoDB backend.
+Includes Authentication, Email OTP verification, Protected Routes, and Full CRUD operations.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+🚀 Features
+🔐 Authentication System
+User Registration & Login
+Email OTP verification (Nodemailer)
+Secure password handling (hashed)
+JWT-based authentication
+📧 Email System
+OTP sent via backend using Nodemailer
+Email verification before login access
+Secure token-based verification flow
+🛡 Protected Routes
+JWT middleware for route protection
+Only authenticated users can access dashboard/features
+📦 CRUD System
+Create Products
+Read Products
+Update Products
+Delete Products
+Image upload support
+⚛ Frontend (React + Vite)
+Modern UI with Tailwind CSS
+Responsive design
+API integration with backend
+Auth flow with context/state management
+🏗 Tech Stack
+Frontend
+React (Vite)
+Tailwind CSS
+React Router DOM
+Context API
+Backend
+Node.js
+Express.js
+MongoDB + Mongoose
+JWT Authentication
+Nodemailer (Email OTP)
+Multer (Image upload)
+dotenv
