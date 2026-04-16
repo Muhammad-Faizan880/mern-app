@@ -70,79 +70,110 @@ const home = () => {
             </Link>
           </div>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-6 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-6 mt-8">
+            {products.map((product) => (
+              <div
+                key={product._id}
+                className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
+              >
+                {/* IMAGE */}
+                <div className="h-[220px] bg-white flex items-center justify-center border-b border-gray-100">
+                  {product.image ? (
+                    <img
+                      src={`http://localhost:5000${product.image}`}
+                      alt={product.name}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-sm text-gray-400">
+                      No Image Available
+                    </span>
+                  )}
+                </div>
 
-  {products.map((product) => (
-    <div
-      key={product._id}
-      className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
-    >
+                {/* CONTENT */}
+                <div className="p-4 flex flex-col flex-1">
+                  {/* NAME */}
+                  <h2 className="text-sm font-semibold text-gray-900 line-clamp-1">
+                    {product.name}
+                  </h2>
 
-      {/* IMAGE */}
-      <div className="h-[220px] bg-white flex items-center justify-center border-b border-gray-100">
-        {product.image ? (
-          <img
-            src={`http://localhost:5000${product.image}`}
-            alt={product.name}
-            className="h-full w-full object-contain"
-          />
-        ) : (
-          <span className="text-sm text-gray-400">No Image Available</span>
-        )}
-      </div>
+                  {/* DESCRIPTION */}
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
+                    {product.description}
+                  </p>
 
-      {/* CONTENT */}
-      <div className="p-4 flex flex-col flex-1">
+                  {/* PRICE ROW */}
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-base font-semibold text-gray-900">
+                      ${product.price}
+                    </span>
 
-        {/* NAME */}
-        <h2 className="text-sm font-semibold text-gray-900 line-clamp-1">
-          {product.name}
-        </h2>
+                    <span className="text-[11px] text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                      In Stock
+                    </span>
+                  </div>
 
-        {/* DESCRIPTION */}
-        <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">
-          {product.description}
-        </p>
+                  {/* ACTIONS */}
+                  <div className="mt-4 flex gap-2">
+                    <button className="flex-1 text-xs font-medium py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                      View
+                    </button>
 
-        {/* PRICE ROW */}
-        <div className="mt-3 flex items-center justify-between">
-          <span className="text-base font-semibold text-gray-900">
-            ${product.price}
-          </span>
+                    <Link to={`/editPage/${product._id}`} className="flex-1">
+                      <button className="w-full text-xs font-medium py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition">
+                        Edit
+                      </button>
+                    </Link>
 
-          <span className="text-[11px] text-green-600 bg-green-50 px-2 py-1 rounded-md">
-            In Stock
-          </span>
-        </div>
-
-        {/* ACTIONS */}
-        <div className="mt-4 flex gap-2">
-
-          <button className="flex-1 text-xs font-medium py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-            View
-          </button>
-
-          <Link to={`/editPage/${product._id}`} className="flex-1">
-            <button className="w-full text-xs font-medium py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition">
-              Edit
-            </button>
-          </Link>
-
-          <button
-            onClick={() => handleDelete(product._id)}
-            className="flex-1 text-xs font-medium py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition"
-          >
-            Delete
-          </button>
-
-        </div>
-
-      </div>
-    </div>
-  ))}
-</div>
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="flex-1 text-xs font-medium py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </>
       )}
+
+   <a href="/chat" className="fixed bottom-6 right-8 z-50 group">
+      
+      {/* Ripple effect */}
+      <span className="absolute inset-0 rounded-full bg-blue-500 opacity-40 animate-ping"></span>
+
+      {/* Outer glow ring */}
+      <span className="absolute inset-0 rounded-full bg-blue-500 blur-2xl opacity-50 animate-pulse"></span>
+
+      {/* Button */}
+      <div className="relative bg-gradient-to-br from-blue-400 via-blue-600 to-blue-800 p-4 rounded-full shadow-2xl transition-all duration-300 group-hover:scale-125 group-hover:rotate-6">
+
+        {/* SVG Icon */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="white"
+          className="w-6 h-6"
+        >
+          <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+          <circle cx="8" cy="11" r="1.2" />
+          <circle cx="12" cy="11" r="1.2" />
+          <circle cx="16" cy="11" r="1.2" />
+        </svg>
+
+        {/* Notification dot */}
+        <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-bounce"></span>
+      </div>
+
+      {/* Hover label */}
+      <div className="absolute w-[90px] right-16 bottom-2 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black text-white text-xs px-3 py-1 rounded-md">
+        Chat with us
+      </div>
+
+    </a>
     </>
   );
 };

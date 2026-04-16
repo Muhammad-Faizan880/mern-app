@@ -7,6 +7,7 @@ import Login from "./auth/login";
 import Signup from "./auth/register";
 import ProtectedRoute from "./routes/protectedRoutes";
 import Otp from "./auth/otp";
+import Chat from "./pages/chat";
 
 // token check helper
 const isAuth = () => {
@@ -89,6 +90,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <Chat />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all route for undefined paths */}
+        <Route path ="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
