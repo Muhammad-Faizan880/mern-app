@@ -1,32 +1,37 @@
-📦 Full Stack MERN App (React + Vite + Node.js)
+🚀 Full Stack MERN App
+(React + Vite + Node.js + MongoDB)
 
-A modern full-stack web application built with React (Vite) frontend and Node.js + Express + MongoDB backend.
-Includes Authentication, Email OTP verification, Protected Routes, and Full CRUD operations.
+A production-ready full-stack MERN application with secure authentication, email OTP verification, protected routes, and complete CRUD functionality.
 
-🚀 Features
+🌐 Live Demo
+Frontend: http://localhost:5173/login
+Backend API: http://localhost:5000/
+
+⚡ Features
 🔐 Authentication System
 User Registration & Login
-Email OTP verification (Nodemailer)
-Secure password handling (hashed)
+Secure password hashing (bcrypt)
 JWT-based authentication
-📧 Email System
-OTP sent via backend using Nodemailer
-Email verification before login access
-Secure token-based verification flow
+Persistent login sessions
+📧 Email Verification (OTP)
+OTP sent via Nodemailer
+Email verification required before login
+Secure token-based validation
 🛡 Protected Routes
-JWT middleware for route protection
-Only authenticated users can access dashboard/features
-📦 CRUD System
+JWT middleware for backend protection
+Frontend route guarding
+Role-based access ready
+📦 CRUD Operations
 Create Products
 Read Products
 Update Products
 Delete Products
-Image upload support
+Image upload support (Multer)
 ⚛ Frontend (React + Vite)
 Modern UI with Tailwind CSS
-Responsive design
-API integration with backend
-Auth flow with context/state management
+Fully responsive design
+Clean state management (Context API)
+API integration with Axios
 🏗 Tech Stack
 Frontend
 React (Vite)
@@ -39,5 +44,5 @@ Express.js
 MongoDB + Mongoose
 JWT Authentication
 Nodemailer (Email OTP)
-Multer (Image upload)
+Multer (File Uploads)
 dotenv
