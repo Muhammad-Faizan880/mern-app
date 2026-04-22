@@ -24,9 +24,54 @@ export const createProduct = async (req, res) => {
 };
 
 // Other controllers can stay as they are
+// export const getProducts = async (req, res) => {
+//   const products = await Product.find();
+//   res.json(products);
+// };
+
 export const getProducts = async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
+  try {
+    const {
+      keyword,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 5,
+    } = req.query;
+
+    // Search + Filter object
+    let query = {};
+
+    // Search by name (case-insensitive)
+    if (keyword) {
+      query.name = { $regex: keyword, $options: "i" };
+    }
+
+    // Price filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // Pagination
+    const skip = (page - 1) * limit;
+
+    const products = await Product.find(query)
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await Product.countDocuments(query);
+
+    res.json({
+      total,
+      page: Number(page),
+      pages: Math.ceil(total / limit),
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export const getProductById = async (req, res) => {

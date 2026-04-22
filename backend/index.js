@@ -23,7 +23,7 @@ connectDB(process.env.MONGO_URI);
 
 // Root route
 app.get("/", (req, res) => {
-  res.send("✅ Backend is running! Use /api/products for CRUD operations");
+  res.send("Backend is running! Use /api/products for CRUD operations");
 });
 
 // Product routes
@@ -108,31 +108,6 @@ User name: ${user?.name || "Guest"}
 });
 
 
-app.post("/api/generate-code", async (req, res) => {
-  try {
-    const { prompt, token } = req.body;
-
-    const systemPrompt = `
-You are a senior developer.
-Only return clean code.
-Do not explain anything.
-`;
-
-    const response = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
-      ],
-    });
-
-    res.json({
-      code: response.choices[0].message.content,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -47,10 +47,10 @@ const Register = () => {
         console.log("Error:", data);
         toast.error(data.message || "Registration failed");
       }
-    } catch (error) {
+        } catch (error) {
       console.error("Error:", error);
       toast.error("Server not responding");
-    }
+       }
   };
 
   return (

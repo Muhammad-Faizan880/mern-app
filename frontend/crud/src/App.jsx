@@ -17,7 +17,7 @@ const isAuth = () => {
 // Public Route Guard (IMPORTANT FIX)
 const PublicRoute = ({ children }) => {
   if (isAuth()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
   return children;
 };
