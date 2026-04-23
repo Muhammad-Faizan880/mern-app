@@ -11,6 +11,10 @@ const ProductForm = () => {
     name: "",
     description: "",
     price: "",
+    sizes: "",
+    colors: "",
+    stock: "",
+    image: null,
   });
   const [preview, setPreview] = useState(null);
 
@@ -32,27 +36,69 @@ const ProductForm = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const { name, description, price, image } = form;
+  const { name, description, price, sizes, colors, stock, image } = form;
 
   if (!name || !description || !price || !image) {
-    toast.error("Please fill all fields");
+    toast.error("Please fill all required fields");
     return;
   }
 
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("description", description);
-  formData.append("price", Number(price));
-  formData.append("image", image);
-
   try {
+    const formData = new FormData();
+
+    // ✅ Clean sizes
+    const formattedSizes = sizes
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean); // remove empty
+
+    // ✅ Color mapping
+    const colorMap = {
+      white: "#FFFFFF",
+      black: "#000000",
+      blue: "#1D4ED8",
+      red: "#FF0000",
+      green: "#00FF00",
+      yellow: "#FFFF00",
+      gray: "#808080",
+    };
+
+    const formattedColors = colors
+      .split(",")
+      .map((c) => c.trim().toLowerCase())
+      .filter(Boolean)
+      .map((color) => ({
+        name: color,
+        hex: colorMap[color] || "#000000",
+      }));
+
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("price", Number(price));
+    formData.append("sizes", JSON.stringify(formattedSizes));
+    formData.append("colors", JSON.stringify(formattedColors));
+    formData.append("stock", Number(stock) || 0);
+    formData.append("image", image);
+
     await axios.post("/products", formData);
+
     toast.success("Product added successfully");
 
-    setForm({ name: "", description: "", price: "", image: null });
+    // reset
+    setForm({
+      name: "",
+      description: "",
+      price: "",
+      sizes: "",
+      colors: "",
+      stock: "",
+      image: null,
+    });
+
     setPreview(null);
   } catch (error) {
-    toast.error("Failed to add product");
+    console.error(error);
+    toast.error(error?.response?.data?.message || "Failed to add product");
   }
 };
   return (
@@ -132,6 +178,33 @@ const handleSubmit = async (e) => {
             name="price"
             placeholder="Price"
             value={form.price}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded mb-4"
+          />
+
+          <input
+            type="text"
+            name="sizes"
+            placeholder="Sizes (comma-separated)"
+            value={form.sizes}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded mb-4"
+          />
+
+          <input
+            type="text"
+            name="colors"
+            placeholder="Colors (comma-separated)"
+            value={form.colors}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded mb-4"
+          />
+
+          <input
+            type="number"
+            name="stock"
+            placeholder="Stock"
+            value={form.stock}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded mb-4"
           />

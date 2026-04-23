@@ -3,7 +3,7 @@ import Product from "../models/productModel.js";
 // Create a new product
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price } = req.body;
+    const { name, description, price, sizes, colors, stock } = req.body;
 
     // Multer provides req.file
     if (!req.file) {
@@ -14,6 +14,9 @@ export const createProduct = async (req, res) => {
       name,
       description,
       price,
+      sizes: JSON.parse(sizes), 
+      colors: JSON.parse(colors),
+      stock: Number(stock),
       image: `/uploads/${req.file.filename}`,
     });
 
@@ -23,11 +26,6 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Other controllers can stay as they are
-// export const getProducts = async (req, res) => {
-//   const products = await Product.find();
-//   res.json(products);
-// };
 
 export const getProducts = async (req, res) => {
   try {
@@ -82,12 +80,15 @@ export const getProductById = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    const { name, description, price } = req.body;
+    const { name, description, price, sizes, colors, stock } = req.body;
 
     const updateData = {
       name,
       description,
       price,
+      sizes: JSON.parse(sizes),
+      colors: JSON.parse(colors),
+      stock: Number(stock),
     };
 
     // ✅ if new image uploaded

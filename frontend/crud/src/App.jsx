@@ -2,6 +2,7 @@ import "./index.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/landing";
 import AddEditProduct from "./pages/addEditProduct";
+import ProductDetail from "./pages/productDetail";
 import EditPage from "./pages/editPage";
 import Login from "./auth/login";
 import Signup from "./auth/register";
@@ -74,10 +75,10 @@ function App() {
         />
 
         <Route
-          path="/edit/:id"
+          path="/productDetail/:id"
           element={
             <ProtectedRoute>
-              <AddEditProduct />
+              <ProductDetail />
             </ProtectedRoute>
           }
         />

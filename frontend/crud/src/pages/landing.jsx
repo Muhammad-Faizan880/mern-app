@@ -298,7 +298,7 @@ const Home = () => {
               {(keyword || minPrice || maxPrice) && (
                 <button
                   onClick={resetFilters}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition text-sm"
+                  className="w-full border flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition text-sm"
                 >
                   <X className="w-4 h-4" />
                   Reset All Filters
@@ -423,9 +423,11 @@ const Home = () => {
 
                           {/* Quick Actions Overlay */}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 sm:gap-3">
-                            <button className="bg-white text-gray-800 p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
+                           <Link to={`/productDetail/${product._id}`}>
+                            <button  className="bg-white text-gray-800 p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
                               <Eye className="w-3 h-3 sm:w-5 sm:h-5" />
                             </button>
+                             </Link>
                             <Link to={`/editPage/${product._id}`}>
                               <button className="bg-blue-600 text-white p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
                                 <Edit className="w-3 h-3 sm:w-5 sm:h-5" />
@@ -511,7 +513,7 @@ const Home = () => {
                               </Link>
                               <button
                                 onClick={() => handleDelete(product._id)}
-                                className="px-2 sm:px-3 py-1 text-xs sm:text-sm border-red-300 text-red-600 rounded-lg hover:bg-red-50"
+                                className="px-2 border sm:px-3 py-1 text-xs sm:text-sm border-red-300 text-red-600 rounded-lg hover:bg-red-50"
                               >
                                 Delete
                               </button>
