@@ -77,7 +77,7 @@ function App() {
 
       {/* 💬 Message bubble */}
       <div
-        className={`px-4 py-2 rounded-2xl max-w-xs text-sm ${
+        className={`px-4 py-2 rounded-2xl max-w-xl text-sm ${
           msg.role === "user"
             ? "bg-blue-500 text-white"
             : "bg-gray-200 text-gray-800"

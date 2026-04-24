@@ -14,7 +14,7 @@ export const createProduct = async (req, res) => {
       name,
       description,
       price,
-      sizes: JSON.parse(sizes), 
+      sizes: JSON.parse(sizes),
       colors: JSON.parse(colors),
       stock: Number(stock),
       image: `/uploads/${req.file.filename}`,
@@ -26,16 +26,9 @@ export const createProduct = async (req, res) => {
   }
 };
 
-
 export const getProducts = async (req, res) => {
   try {
-    const {
-      keyword,
-      minPrice,
-      maxPrice,
-      page = 1,
-      limit = 5,
-    } = req.query;
+    const { keyword, minPrice, maxPrice, page = 1, limit = 5 } = req.query;
 
     // Search + Filter object
     let query = {};
@@ -55,9 +48,7 @@ export const getProducts = async (req, res) => {
     // Pagination
     const skip = (page - 1) * limit;
 
-    const products = await Product.find(query)
-      .skip(skip)
-      .limit(Number(limit));
+    const products = await Product.find(query).skip(skip).limit(Number(limit));
 
     const total = await Product.countDocuments(query);
 
@@ -86,9 +77,9 @@ export const updateProduct = async (req, res) => {
       name,
       description,
       price,
-      sizes: JSON.parse(sizes),
-      colors: JSON.parse(colors),
-      stock: Number(stock),
+      sizes: sizes ? JSON.parse(sizes) : [],
+      colors: colors ? JSON.parse(colors) : [],
+      stock: stock ? Number(stock) : 0,
     };
 
     // ✅ if new image uploaded
@@ -96,11 +87,9 @@ export const updateProduct = async (req, res) => {
       updateData.image = `/uploads/${req.file.filename}`;
     }
 
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });

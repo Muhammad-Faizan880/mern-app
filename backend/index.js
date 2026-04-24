@@ -1,41 +1,42 @@
 import dotenv from "dotenv";
-import cors from "cors";
+dotenv.config(); // MUST be first
+
 import express from "express";
+import cors from "cors";
+
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import { connectDB } from "./config/db.js";
-import OpenAI from "openai";
-import { AI_CONFIG } from "./config/aiConfig.js";
 import chatRoutes from "./routes/chatRoutes.js";
 
-dotenv.config();
+import { connectDB } from "./config/db.js";
+
 const app = express();
+
+// 🔍 DEBUG (temporary)
+console.log("OPENAI KEY:", process.env.OPENAI_API_KEY);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded images
+// Static files
 app.use("/uploads", express.static("uploads"));
 
-// MongoDB connect
+// DB
 connectDB(process.env.MONGO_URI);
 
-// Root route
+// Routes
 app.get("/", (req, res) => {
-  res.send("Backend is running! Use /api/products for CRUD operations");
+  res.send("Backend is running!");
 });
 
-// Product routes
 app.use("/api/products", productRoutes);
-
-// Auth routes
 app.use("/api/auth", authRoutes);
-
-// Grok chat routes
 app.use("/api", chatRoutes);
 
-
+// Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

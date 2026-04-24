@@ -1,14 +1,18 @@
 import OpenAI from "openai";
 import { AI_CONFIG } from "../config/aiConfig.js";
 
-const openai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
+const getOpenAI = () => {
+  return new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
+};
 
 export const generateAIResponse = async ({ message, user }) => {
+  const openai = getOpenAI();
+
   const systemPrompt = `
-You are a helpful AI assistant.
+${AI_CONFIG.systemPrompt}
 User name: ${user?.name || "Guest"}
 `;
 
@@ -30,8 +34,13 @@ User name: ${user?.name || "Guest"}
       });
       break;
     } catch (err) {
-      console.log(`Model failed: ${model}`);
-    }
+  console.log("❌ MODEL:", model);
+  console.log("❌ STATUS:", err.status);
+  console.log("❌ GROQ RESPONSE:", err.response?.data);
+  console.log("❌ FULL ERROR:", err);
+
+  throw err; // 👈 IMPORTANT (custom error mat hide karo)
+}
   }
 
   if (!response) {

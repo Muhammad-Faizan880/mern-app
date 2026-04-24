@@ -14,7 +14,8 @@ export const chatHandler = async (req, res) => {
     if (token) {
       try {
         user = jwt.verify(token, process.env.JWT_SECRET);
-      } catch {
+      } catch (err) {
+        console.log("Invalid token");
         user = null;
       }
     }
@@ -25,6 +26,7 @@ export const chatHandler = async (req, res) => {
 
   } catch (error) {
     console.log("ERROR:", error);
+
     res.status(500).json({
       error: error.message || "Something went wrong",
     });
