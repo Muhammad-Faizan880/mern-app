@@ -80,7 +80,13 @@ const handleSubmit = async (e) => {
     formData.append("stock", Number(stock) || 0);
     formData.append("image", image);
 
-    await axios.post("/products", formData);
+    await axios.post("/products", formData,
+        {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+    );
 
     toast.success("Product added successfully");
 

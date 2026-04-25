@@ -19,6 +19,8 @@ import {
   ShoppingBag,
   Menu,
 } from "lucide-react";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -32,6 +34,8 @@ const Home = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { user } = useContext(AuthContext);
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -157,7 +161,9 @@ const Home = () => {
           >
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-blue-600" />
-              <span className="font-medium text-gray-700">Filters & Search</span>
+              <span className="font-medium text-gray-700">
+                Filters & Search
+              </span>
             </div>
             <Menu className="w-5 h-5 text-gray-500" />
           </button>
@@ -165,7 +171,9 @@ const Home = () => {
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-9">
           {/* FILTERS SIDEBAR - RESPONSIVE */}
-          <div className={`${mobileMenuOpen ? 'block' : 'hidden'} lg:block w-full lg:w-80 flex-shrink-0 transition-all duration-300`}>
+          <div
+            className={`${mobileMenuOpen ? "block" : "hidden"} lg:block w-full lg:w-80 flex-shrink-0 transition-all duration-300`}
+          >
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-5 sticky top-20">
               <div className="flex justify-between items-center mb-4 lg:hidden">
                 <h3 className="font-semibold text-gray-800">Filters</h3>
@@ -245,7 +253,8 @@ const Home = () => {
                         style={{
                           left: `${((minPrice || 0) / 1000) * 100}%`,
                           right: `${100 - ((maxPrice || 1000) / 1000) * 100}%`,
-                          background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                          background:
+                            "linear-gradient(90deg, #3b82f6, #8b5cf6)",
                         }}
                       ></div>
                       <input
@@ -310,12 +319,14 @@ const Home = () => {
           {/* PRODUCTS SECTION - RESPONSIVE */}
           <div className="flex-1">
             {/* ADD PRODUCT BUTTON - FLOATING ACTION (Mobile Optimized) */}
-            <Link
-              to="/add"
-              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-8 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 sm:p-4 rounded-full shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-110 group"
-            >
-              <Plus className="w-5 h-5 sm:w-6 sm:h-6 group-hover:rotate-90 transition-transform duration-300" />
-            </Link>
+            {user?.role === "admin" && (
+              <Link
+                to="/add"
+                className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-8 z-40 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 sm:p-4 rounded-full shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-110 group"
+              >
+                <Plus className="w-5 h-5 sm:w-6 sm:h-6 group-hover:rotate-90 transition-transform duration-300" />
+              </Link>
+            )}
 
             {/* LOADING STATE */}
             {isLoading ? (
@@ -346,7 +357,6 @@ const Home = () => {
               </div>
             ) : (
               <>
-              
                 {/* PRODUCT COUNT & STATS - RESPONSIVE */}
                 <div className="flex flex-row justify-between items-start sm:items-center gap-3 mb-6">
                   <div>
@@ -423,11 +433,11 @@ const Home = () => {
 
                           {/* Quick Actions Overlay */}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 sm:gap-3">
-                           <Link to={`/productDetail/${product._id}`}>
-                            <button  className="bg-white text-gray-800 p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
-                              <Eye className="w-3 h-3 sm:w-5 sm:h-5" />
-                            </button>
-                             </Link>
+                            <Link to={`/productDetail/${product._id}`}>
+                              <button className="bg-white text-gray-800 p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
+                                <Eye className="w-3 h-3 sm:w-5 sm:h-5" />
+                              </button>
+                            </Link>
                             <Link to={`/editPage/${product._id}`}>
                               <button className="bg-blue-600 text-white p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
                                 <Edit className="w-3 h-3 sm:w-5 sm:h-5" />
@@ -463,7 +473,9 @@ const Home = () => {
                             </div>
                             <div className="flex items-center gap-0.5 sm:gap-1">
                               <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current" />
-                              <span className="text-xs sm:text-sm text-gray-600">4.5</span>
+                              <span className="text-xs sm:text-sm text-gray-600">
+                                4.5
+                              </span>
                             </div>
                           </div>
                         </div>

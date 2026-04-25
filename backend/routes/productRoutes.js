@@ -7,13 +7,28 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controllers/productController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import { isAdmin } from "../middleware/isAdmin.js";
 
 const router = express.Router();
 
-router.post("/", upload.single("image"), createProduct);
+router.post(
+  "/",
+  authMiddleware,
+  isAdmin,
+  upload.single("image"),
+  createProduct,
+);
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.put("/:id", upload.single("image"), updateProduct);
-router.delete("/:id", deleteProduct);
+router.put(
+  "/:id",
+  upload.single("image"),
+  authMiddleware,
+  isAdmin,
+  updateProduct,
+);
+router.delete("/:id", authMiddleware, isAdmin, deleteProduct);
+router.post("/add-product", authMiddleware, isAdmin, createProduct);
 
 export default router;

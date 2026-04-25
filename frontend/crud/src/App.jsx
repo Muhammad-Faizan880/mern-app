@@ -27,7 +27,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 🚫 Public Routes (blocked if logged in) */}
+        {/* Public Routes (blocked if logged in) */}
         <Route
           path="/login"
           element={
@@ -68,7 +68,7 @@ function App() {
         <Route
           path="/add"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly={true}>
               <AddEditProduct />
             </ProtectedRoute>
           }
@@ -86,7 +86,7 @@ function App() {
         <Route
           path="/editPage/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute adminOnly={true}>
               <EditPage />
             </ProtectedRoute>
           }
@@ -102,7 +102,7 @@ function App() {
         />
 
         {/* Catch-all route for undefined paths */}
-        <Route path ="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

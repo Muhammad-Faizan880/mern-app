@@ -76,7 +76,13 @@ const EditPage = () => {
   }
 
   try {
-    await axios.put(`/products/${id}`, formData);
+    await axios.put(`/products/${id}`, formData,
+        {
+        headers: {
+          Authorization: `Bearer ${token}` // 👈 IMPORTANT
+        }
+      }
+    );
 
     toast.success("Product updated successfully");
 

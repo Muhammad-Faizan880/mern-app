@@ -17,39 +17,47 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(form);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password,
+      }),
+    });
 
-      const data = await res.json();
-      console.log("API RESPONSE:>>>>>", data);
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-     if (res.ok) {
-  login(data.token);
-  localStorage.setItem("token", data.token);
-  localStorage.setItem("user", JSON.stringify(data.user));
-  toast.success("Login successful");
-  navigate("/");
-} else {
-        console.log("Login failed:", data);
-        toast.error(data.message || "Login failed");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Server not responding");
+    const data = await res.json();
+
+    console.log("API RESPONSE:", data);
+
+    if (!res.ok) {
+      toast.error(data.message || "Login failed");
+      return;
     }
-  };
+
+    // ✅ Save token once
+    localStorage.setItem("token", data.token);
+
+    // ✅ Save user
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // ✅ If using context login
+    login(data.token);
+
+    toast.success("Login successful");
+
+    navigate("/");
+  } catch (error) {
+    console.error("Error:", error);
+    toast.error("Server not responding");
+  }
+};
 
   return (
     <>
