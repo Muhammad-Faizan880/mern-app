@@ -20,7 +20,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useContext } from "react";
-import { AuthContext } from "../context/authContext";
+import { AuthContext } from "../context/authContext.jsx";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -35,7 +35,7 @@ const Home = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext);
 
   // Fetch Products
   const fetchProducts = async () => {
@@ -71,12 +71,16 @@ const Home = () => {
   // Delete
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/products/${id}`);
+      await axios.delete(`/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setProducts(products.filter((p) => p._id !== id));
       toast.success("Product deleted successfully");
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete product");
+      toast.error(error?.response?.data?.message || "Failed to delete product");
     }
   };
 
@@ -433,22 +437,40 @@ const Home = () => {
 
                           {/* Quick Actions Overlay */}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 sm:gap-3">
-                            <Link to={`/productDetail/${product._id}`}>
-                              <button className="bg-white text-gray-800 p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
-                                <Eye className="w-3 h-3 sm:w-5 sm:h-5" />
+                            <div className="flex gap-2">
+                              {/* Admin Only */}
+                              {user?.role === "admin" && (
+                                <Link to={`/productDetail/${product._id}`}>
+                                  <button className="bg-white text-gray-800 p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
+                                    <Eye className="w-3 h-3 sm:w-5 sm:h-5" />
+                                  </button>
+                                </Link>
+                              )}
+
+                              {/* User Only */}
+                              {user?.role !== "admin" && (
+                                <Link to={`/productDetail/${product._id}`}>
+                                  <button className="bg-blue-600 text-white px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg hover:bg-blue-700 transition">
+                                    Add to Cart
+                                  </button>
+                                </Link>
+                              )}
+                            </div>
+                            {user?.role === "admin" && (
+                              <Link to={`/editPage/${product._id}`}>
+                                <button className="bg-blue-600 text-white p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
+                                  <Edit className="w-3 h-3 sm:w-5 sm:h-5" />
+                                </button>
+                              </Link>
+                            )}
+                            {user?.role === "admin" && (
+                              <button
+                                onClick={() => handleDelete(product._id)}
+                                className="bg-red-600 text-white p-1.5 sm:p-2 rounded-full hover:scale-110 transition"
+                              >
+                                <Trash2 className="w-3 h-3 sm:w-5 sm:h-5" />
                               </button>
-                            </Link>
-                            <Link to={`/editPage/${product._id}`}>
-                              <button className="bg-blue-600 text-white p-1.5 sm:p-2 rounded-full hover:scale-110 transition">
-                                <Edit className="w-3 h-3 sm:w-5 sm:h-5" />
-                              </button>
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(product._id)}
-                              className="bg-red-600 text-white p-1.5 sm:p-2 rounded-full hover:scale-110 transition"
-                            >
-                              <Trash2 className="w-3 h-3 sm:w-5 sm:h-5" />
-                            </button>
+                            )}
                           </div>
                         </div>
 

@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react"; // ✅ add useContext
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import toast, { Toaster } from "react-hot-toast";
+import { AuthContext } from "../context/authContext"; // ✅ import context
 
 const EditPage = () => {
+  const { token } = useContext(AuthContext); // ✅ get token
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -21,28 +24,28 @@ const EditPage = () => {
   useEffect(() => {
     if (!id) return;
 
-   const fetchProduct = async () => {
-  try {
-    const res = await axios.get(`/products/${id}`);
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`/products/${id}`);
 
-    const product = res.data.product || res.data;
+        const product = res.data.product || res.data;
 
-    setForm({
-      name: product.name || "",
-      description: product.description || "",
-      price: product.price || "",
-      image: null,
-    });
+        setForm({
+          name: product.name || "",
+          description: product.description || "",
+          price: product.price || "",
+          image: null,
+        });
 
-    if (product.image) {
-      setPreview(`http://localhost:5000${product.image}`);
-    }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setLoading(false);
-  }
-};
+        if (product.image) {
+          setPreview(`http://localhost:5000${product.image}`);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchProduct();
   }, [id]);
@@ -63,41 +66,44 @@ const EditPage = () => {
   };
 
   // UPDATE API
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const formData = new FormData();
-  formData.append("name", form.name);
-  formData.append("description", form.description);
-  formData.append("price", Number(form.price));
+    const formData = new FormData();
+    formData.append("name", form.name);
+    formData.append("description", form.description);
+    formData.append("price", Number(form.price));
 
-  if (form.image) {
-    formData.append("image", form.image);
-  }
+    if (form.image) {
+      formData.append("image", form.image);
+    }
 
-  try {
-    await axios.put(`/products/${id}`, formData,
-        {
+    try {
+      console.log("TOKEN:", token); // 🔍 debug
+
+      await axios.put(`/products/${id}`, formData, {
         headers: {
-          Authorization: `Bearer ${token}` // 👈 IMPORTANT
-        }
-      }
-    );
+          Authorization: `Bearer ${token}`, // ✅ now works
+        },
+      });
 
-    toast.success("Product updated successfully");
+      toast.success("Product updated successfully");
+      navigate("/");
+    } catch (error) {
+      console.error(error); // 🔥 important for debugging
+      toast.error(error?.response?.data?.message || "Update failed");
+    }
+  };
 
-    navigate("/");
-  } catch (error) {
-    toast.error("Update failed");
-  }
-};
   if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
     <>
       <Toaster position="top-center" />
 
-      <h1 className="text-center text-2xl mt-6 font-semibold">Edit Product</h1>
+      <h1 className="text-center text-2xl mt-6 font-semibold">
+        Edit Product
+      </h1>
 
       <form onSubmit={handleSubmit} className="mt-6">
         <div className="p-4 max-w-md mx-auto bg-white rounded-lg shadow-md">

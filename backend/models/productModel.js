@@ -6,26 +6,40 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     price: {
       type: Number,
       required: true,
     },
+
     description: {
       type: String,
       required: true,
     },
-    image: { type: String },
 
-    sizes: [String],
+    image: {
+      type: String,
+    },
 
-    colors: [
+    // MAIN CHANGE (Daraz style)
+    variants: [
       {
-        name: String,
-        hex: String,
+        size: {
+          type: String,
+          required: true,
+        },
+
+        color: {
+          name: String,
+          hex: String,
+        },
+
+        stock: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
-
-    stock: Number,
 
     role: {
       type: String,
@@ -33,8 +47,7 @@ const productSchema = new mongoose.Schema(
       default: "user",
     },
   },
-
-  { timestamps: true },
+  { timestamps: true }
 );
 
 export default mongoose.model("Product", productSchema);
