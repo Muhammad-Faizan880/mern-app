@@ -19,7 +19,7 @@ try {
   console.log("✅ Stripe initialized successfully");
 } catch (error) {
   console.error("❌ Stripe initialization failed:", error.message);
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_fallback");
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_fallbacksecretkey"); // Fallback to a test key to prevent crashes
 }
 
 // Create payment intent
