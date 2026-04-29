@@ -1,28 +1,51 @@
-router.post("/create-intent", async (req, res) => {
-  const { productId, quantity, amount } = req.body;
+import Order from "../models/OrderModel.js";
+import Variant from "../models/Variant.js";
 
-  const order = await Order.create({
-    userId: req.user.id,
-    productId,
-    quantity,
-    amount,
-    status: "pending",
-  });
+// Create order after successful payment
+export const createOrder = async (req, res) => {
+  try {
+    const { items, shippingAddress, paymentIntentId, totalAmount } = req.body;
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: amount * 100,
-    currency: "usd",
-    metadata: {
-      orderId: order._id.toString(),
-    },
-  });
+    // Verify stock before creating order
+    for (const item of items) {
+      const variant = await Variant.findById(item.variantId);
+      if (!variant || variant.stock < item.quantity) {
+        return res.status(400).json({ 
+          message: `${item.productName} is out of stock!` 
+        });
+      }
+    }
 
-  order.paymentIntentId = paymentIntent.id;
-  await order.save();
+    // Create order
+    const order = await Order.create({
+      user: req.user._id,
+      items: items.map(item => ({
+        variantId: item.variantId,
+        productName: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size,
+        color: item.color,
+        image: item.image,
+      })),
+      shippingAddress,
+      paymentIntentId,
+      totalAmount,
+      status: "pending",
+    });
 
-  res.json({
-    clientSecret: paymentIntent.client_secret,
-  });
-});
+    res.status(201).json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-export default router;
+// Get user orders
+export const getUserOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

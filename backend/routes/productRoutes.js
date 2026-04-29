@@ -1,6 +1,5 @@
-// routes/productRoutes.js
 import express from "express";
-import upload from "../middleware/upload.js";
+import { uploadAny } from "../middleware/upload.js"; // Changed to uploadAny
 import {
   createProduct,
   getProducts,
@@ -17,12 +16,12 @@ import { isAdmin } from "../middleware/isAdmin.js";
 
 const router = express.Router();
 
-// Product routes
+// Product routes - USE uploadAny instead of upload.fields()
 router.post(
   "/",
   authMiddleware,
   isAdmin,
-  upload.single("image"),
+  uploadAny, // ✅ Changed to accept all fields
   createProduct,
 );
 
@@ -31,13 +30,13 @@ router.get("/:id", getProductById);
 
 router.put(
   "/:id",
-  upload.single("image"),
   authMiddleware,
   isAdmin,
+  uploadAny, // ✅ Changed for update as well
   updateProduct,
 );
 
-router.delete("/:id", authMiddleware, isAdmin, deleteProduct); // ✅ Delete route
+router.delete("/:id", authMiddleware, isAdmin, deleteProduct); 
 
 // Variant routes
 router.get("/:productId/variants", getProductVariants);

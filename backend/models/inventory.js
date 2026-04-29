@@ -1,4 +1,4 @@
-// models/Inventory.js (Optional - for advanced stock management)
+
 import mongoose from "mongoose";
 
 const inventorySchema = new mongoose.Schema({

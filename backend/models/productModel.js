@@ -21,7 +21,7 @@ const productSchema = new mongoose.Schema(
       type: String,
     },
 
-    // MAIN CHANGE (Daraz style)
+    // ✅ FIXED VARIANTS
     variants: [
       {
         size: {
@@ -30,8 +30,18 @@ const productSchema = new mongoose.Schema(
         },
 
         color: {
-          name: String,
-          hex: String,
+          name: {
+            type: String,
+            required: true,
+          },
+          hex: {
+            type: String,
+            required: true,
+          },
+        },
+
+        image: {
+          type: String,
         },
 
         stock: {

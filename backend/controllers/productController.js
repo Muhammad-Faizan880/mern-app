@@ -1,4 +1,3 @@
-// controllers/productController.js
 import Product from "../models/productModel.js";
 import Variant from "../models/Variant.js";
 
@@ -7,7 +6,10 @@ export const createProduct = async (req, res) => {
   try {
     const { name, description, price, variants } = req.body;
 
-    if (!req.file) {
+    // ✅ Find main image from req.files array
+    const mainImage = req.files?.find(file => file.fieldname === "image");
+    
+    if (!mainImage) {
       return res.status(400).json({ message: "Image is required" });
     }
 
@@ -18,35 +20,49 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ message: "Invalid variants format" });
     }
 
-    // Create product
     const product = await Product.create({
       name,
       description,
-      price,
-      image: `/uploads/${req.file.filename}`,
+      price: Number(price),
+      image: `/uploads/${mainImage.filename}`,
     });
 
-    // Create variants in separate collection
-    const variantDocs = parsedVariants.map(v => ({
-      productId: product._id,
-      size: v.size,
-      color: {
-        name: v.color.name,
-        hex: v.color.hex,
-        image: v.color.image || product.image
-      },
-      stock: v.stock,
-      sku: `${product._id}-${v.size}-${v.color.name}`.replace(/\s/g, '')
-    }));
+    // Create variant documents
+    const variantDocs = [];
+    
+    for (const v of parsedVariants) {
+      // ✅ Find color image from req.files array
+      const colorImageField = `colorImage_${v.size}_${v.color.name}`;
+      const colorImageFile = req.files?.find(file => file.fieldname === colorImageField);
+      
+      variantDocs.push({
+        productId: product._id,
+        size: v.size,
+        color: {
+          name: v.color.name,
+          hex: v.color.hex,
+          image: colorImageFile 
+            ? `/uploads/${colorImageFile.filename}`
+            : `/uploads/${mainImage.filename}`, // Fallback to main product image
+        },
+        stock: Number(v.stock),
+        sku: `${product._id}-${v.size}-${v.color.name}`.replace(/\s/g, ""),
+      });
+    }
 
-    await Variant.insertMany(variantDocs);
+    if (variantDocs.length > 0) {
+      await Variant.insertMany(variantDocs);
+    }
 
-    res.status(201).json({ 
-      product, 
-      variants: variantDocs 
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      product,
+      variants: variantDocs,
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Create product error:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -61,7 +77,20 @@ export const getProductById = async (req, res) => {
       isActive: true 
     });
     
-    res.json({ ...product.toObject(), variants });
+    // Group variants by size for better frontend display
+    const groupedVariants = {};
+    variants.forEach(variant => {
+      if (!groupedVariants[variant.size]) {
+        groupedVariants[variant.size] = [];
+      }
+      groupedVariants[variant.size].push(variant);
+    });
+    
+    res.json({ 
+      ...product.toObject(), 
+      variants: variants,
+      variantsList: variants
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -114,7 +143,7 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// ✅ UPDATE PRODUCT (with variants)
+// Update product
 export const updateProduct = async (req, res) => {
   try {
     const { name, description, price, variants } = req.body;
@@ -122,11 +151,13 @@ export const updateProduct = async (req, res) => {
     const updateData = {
       name,
       description,
-      price,
+      price: Number(price),
     };
 
-    if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+    // ✅ Find main image from req.files array
+    const mainImage = req.files?.find(file => file.fieldname === "image");
+    if (mainImage) {
+      updateData.image = `/uploads/${mainImage.filename}`;
     }
 
     const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
@@ -137,7 +168,6 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // If variants are provided in update, update them
     if (variants) {
       let parsedVariants;
       try {
@@ -150,17 +180,26 @@ export const updateProduct = async (req, res) => {
       await Variant.deleteMany({ productId: product._id });
 
       // Create new variants
-      const variantDocs = parsedVariants.map(v => ({
-        productId: product._id,
-        size: v.size,
-        color: {
-          name: v.color.name,
-          hex: v.color.hex,
-          image: v.color.image || product.image
-        },
-        stock: v.stock,
-        sku: `${product._id}-${v.size}-${v.color.name}`.replace(/\s/g, '')
-      }));
+      const variantDocs = [];
+      
+      for (const v of parsedVariants) {
+        const colorImageField = `colorImage_${v.size}_${v.color.name}`;
+        const colorImageFile = req.files?.find(file => file.fieldname === colorImageField);
+        
+        variantDocs.push({
+          productId: product._id,
+          size: v.size,
+          color: {
+            name: v.color.name,
+            hex: v.color.hex,
+            image: colorImageFile 
+              ? `/uploads/${colorImageFile.filename}`
+              : v.color.image || product.image,
+          },
+          stock: Number(v.stock),
+          sku: `${product._id}-${v.size}-${v.color.name}`.replace(/\s/g, '')
+        });
+      }
 
       await Variant.insertMany(variantDocs);
     }
@@ -168,16 +207,18 @@ export const updateProduct = async (req, res) => {
     const updatedVariants = await Variant.find({ productId: product._id });
 
     res.json({
+      success: true,
       message: "Product updated successfully",
       product,
       variants: updatedVariants
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error("Update product error:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ DELETE PRODUCT (also deletes all related variants)
+// Delete product
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -186,13 +227,11 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Delete all variants related to this product
     const deletedVariants = await Variant.deleteMany({ productId: product._id });
-    
-    // Delete the product
     await Product.findByIdAndDelete(req.params.id);
 
     res.json({ 
+      success: true,
       message: "Product and all its variants deleted successfully",
       deletedCount: {
         product: 1,
@@ -227,7 +266,7 @@ export const updateVariantStock = async (req, res) => {
   }
 };
 
-// Get variant by ID (for checkout)
+// Get variant by ID
 export const getVariantById = async (req, res) => {
   try {
     const variant = await Variant.findById(req.params.id).populate("productId");
@@ -240,7 +279,7 @@ export const getVariantById = async (req, res) => {
   }
 };
 
-// ✅ Get all variants of a product
+// Get all variants of a product
 export const getProductVariants = async (req, res) => {
   try {
     const variants = await Variant.find({ 
@@ -248,20 +287,27 @@ export const getProductVariants = async (req, res) => {
       isActive: true 
     });
     
-    res.json(variants);
+    // Group by size for better UI
+    const grouped = {};
+    variants.forEach(v => {
+      if (!grouped[v.size]) grouped[v.size] = [];
+      grouped[v.size].push(v);
+    });
+    
+    res.json({ variants, grouped });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// ✅ Update single variant stock (admin)
+// Update single variant stock (admin)
 export const updateSingleVariantStock = async (req, res) => {
   try {
     const { stock } = req.body;
     
     const variant = await Variant.findByIdAndUpdate(
       req.params.variantId,
-      { stock },
+      { stock: Number(stock) },
       { new: true }
     );
     

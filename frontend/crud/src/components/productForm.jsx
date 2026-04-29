@@ -19,7 +19,7 @@ const ProductForm = () => {
 
   // Variants state - Now supporting multiple colors per size
   const [variants, setVariants] = useState([]);
-  
+
   // Form for adding new variant
   const [size, setSize] = useState("");
   const [colors, setColors] = useState([]); // Multiple colors array
@@ -50,14 +50,26 @@ const ProductForm = () => {
       name: colorName,
       hex: colorHex,
       stock: Number(colorStock),
+      image: null,
+      preview: null
     };
 
     setColors([...colors, newColor]);
-    
+
     // Reset color form
     setColorName("");
     setColorHex("#000000");
     setColorStock("");
+  };
+
+  // Handle color image upload - FIXED VERSION
+  const handleColorImage = (file, index) => {
+    if (!file) return;
+    
+    const updated = [...colors];
+    updated[index].image = file;
+    updated[index].preview = URL.createObjectURL(file);
+    setColors(updated);
   };
 
   // Remove color from current size
@@ -80,7 +92,7 @@ const ProductForm = () => {
     }
 
     // Check if size already exists
-    const existingSize = variants.find(v => v.size === size);
+    const existingSize = variants.find((v) => v.size === size);
     if (existingSize) {
       toast.error(`Size ${size} already exists! You can edit it.`);
       return;
@@ -90,9 +102,9 @@ const ProductForm = () => {
       ...variants,
       {
         size: size,
-        colors: colors,
-        totalStock: colors.reduce((sum, c) => sum + c.stock, 0)
-      }
+        colors: colors.map(c => ({ ...c })), // Deep copy
+        totalStock: colors.reduce((sum, c) => sum + c.stock, 0),
+      },
     ]);
 
     // Reset form
@@ -112,9 +124,9 @@ const ProductForm = () => {
   const updateColorStock = (variantIndex, colorIndex, newStock) => {
     const updatedVariants = [...variants];
     updatedVariants[variantIndex].colors[colorIndex].stock = Number(newStock);
-    updatedVariants[variantIndex].totalStock = updatedVariants[variantIndex].colors.reduce(
-      (sum, c) => sum + c.stock, 0
-    );
+    updatedVariants[variantIndex].totalStock = updatedVariants[
+      variantIndex
+    ].colors.reduce((sum, c) => sum + c.stock, 0);
     setVariants(updatedVariants);
   };
 
@@ -136,32 +148,38 @@ const ProductForm = () => {
 
     try {
       const formData = new FormData();
-
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", Number(price));
-      
-      // Transform variants to API format
+      formData.append("image", image);
+
       const apiVariants = [];
-      variants.forEach(variant => {
-        variant.colors.forEach(color => {
+
+      variants.forEach((variant) => {
+        variant.colors.forEach((color, colorIndex) => {
           apiVariants.push({
             size: variant.size,
             color: {
               name: color.name,
-              hex: color.hex
+              hex: color.hex,
             },
-            stock: color.stock
+            stock: color.stock,
+            colorIndex: colorIndex // Track which color this belongs to
           });
+
+          // Append color image if exists
+          if (color.image) {
+            formData.append(`colorImage_${variant.size}_${color.name}`, color.image);
+          }
         });
       });
-      
+
       formData.append("variants", JSON.stringify(apiVariants));
-      formData.append("image", image);
 
       await axios.post("/products", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
+        
         },
       });
 
@@ -178,7 +196,6 @@ const ProductForm = () => {
       setVariants([]);
       setColors([]);
       setSize("");
-      
     } catch (error) {
       console.error(error);
       toast.error(error?.response?.data?.message || "Failed to add product");
@@ -197,8 +214,10 @@ const ProductForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information Card */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">Basic Information</h2>
-              
+              <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                Basic Information
+              </h2>
+
               {/* Image Upload */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -216,7 +235,11 @@ const ProductForm = () => {
                   className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-indigo-500 transition-colors overflow-hidden"
                 >
                   {preview ? (
-                    <img src={preview} className="h-full object-contain" alt="Preview" />
+                    <img
+                      src={preview}
+                      className="h-full object-contain"
+                      alt="Preview"
+                    />
                   ) : (
                     <div className="text-center">
                       <div className="text-4xl mb-2">📸</div>
@@ -275,16 +298,20 @@ const ProductForm = () => {
             {/* Variants Builder Card */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                Sizes & Colors (Daraz Style)
+                Sizes & Colors
               </h2>
-              
+
               {/* Add New Size with Multiple Colors */}
               <div className="border-2 border-dashed border-indigo-200 rounded-lg p-4 mb-6 bg-indigo-50">
-                <h3 className="font-semibold text-indigo-800 mb-3">Add New Size with Colors</h3>
-                
+                <h3 className="font-semibold text-indigo-800 mb-3">
+                  Add New Size with Colors
+                </h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Size *</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Size *
+                    </label>
                     <input
                       value={size}
                       onChange={(e) => setSize(e.target.value.toUpperCase())}
@@ -305,8 +332,10 @@ const ProductForm = () => {
 
                 {/* Add Colors to this Size */}
                 <div className="border-t border-indigo-200 pt-4 mt-2">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Add Colors for {size || "this"} Size:</p>
-                  
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Add Colors for {size || "this"} Size:
+                  </p>
+
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
                     <input
                       value={colorName}
@@ -339,17 +368,57 @@ const ProductForm = () => {
                   {/* Colors List for Current Size */}
                   {colors.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-sm font-medium text-gray-600 mb-2">Colors to add:</p>
+                      <p className="text-sm font-medium text-gray-600 mb-2">
+                        Colors to add:
+                      </p>
                       <div className="flex gap-2 flex-wrap">
                         {colors.map((color, idx) => (
-                          <div key={idx} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-                            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color.hex }}></div>
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full"
+                          >
+                            <div
+                              className="w-4 h-4 rounded-full"
+                              style={{ backgroundColor: color.hex }}
+                            ></div>
+
                             <span className="text-sm">{color.name}</span>
-                            <span className="text-xs text-gray-500">Stock: {color.stock}</span>
+
+                            <span className="text-xs text-gray-500">
+                              Stock: {color.stock}
+                            </span>
+
+                            {/* Image Upload Button */}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) =>
+                                handleColorImage(e.target.files[0], idx)
+                              }
+                              className="hidden"
+                              id={`color-img-${idx}`}
+                            />
+
+                            <label
+                              htmlFor={`color-img-${idx}`}
+                              className="text-xs bg-indigo-500 text-white px-2 py-1 rounded cursor-pointer"
+                            >
+                              Upload Img
+                            </label>
+
+                            {/* Preview */}
+                            {color.preview && (
+                              <img
+                                src={color.preview}
+                                className="w-8 h-8 rounded object-cover"
+                                alt={color.name}
+                              />
+                            )}
+
                             <button
                               type="button"
                               onClick={() => removeColor(idx)}
-                              className="text-red-500 hover:text-red-700 ml-1"
+                              className="text-red-500 ml-1 hover:text-red-700"
                             >
                               ×
                             </button>
@@ -372,12 +441,19 @@ const ProductForm = () => {
               {/* Display Added Variants */}
               {variants.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="font-semibold text-gray-800 mb-3">Added Sizes & Colors:</h3>
+                  <h3 className="font-semibold text-gray-800 mb-3">
+                    Added Sizes & Colors:
+                  </h3>
                   <div className="space-y-3">
                     {variants.map((variant, vIdx) => (
-                      <div key={vIdx} className="border rounded-lg p-4 bg-gray-50">
+                      <div
+                        key={vIdx}
+                        className="border rounded-lg p-4 bg-gray-50"
+                      >
                         <div className="flex justify-between items-start mb-3">
-                          <h4 className="text-lg font-bold text-indigo-600">Size: {variant.size}</h4>
+                          <h4 className="text-lg font-bold text-indigo-600">
+                            Size: {variant.size}
+                          </h4>
                           <button
                             type="button"
                             onClick={() => removeVariant(vIdx)}
@@ -386,23 +462,42 @@ const ProductForm = () => {
                             Remove Size
                           </button>
                         </div>
-                        
+
                         <div className="grid gap-2">
                           {variant.colors.map((color, cIdx) => (
-                            <div key={cIdx} className="flex items-center gap-3 bg-white p-2 rounded-lg">
-                              <div className="w-8 h-8 rounded-full shadow" style={{ backgroundColor: color.hex }}></div>
-                              <span className="font-medium w-24">{color.name}</span>
+                            <div
+                              key={cIdx}
+                              className="flex items-center gap-3 bg-white p-2 rounded-lg"
+                            >
+                              <div
+                                className="w-8 h-8 rounded-full shadow"
+                                style={{ backgroundColor: color.hex }}
+                              ></div>
+                              <span className="font-medium w-24">
+                                {color.name}
+                              </span>
                               <input
                                 type="number"
                                 value={color.stock}
-                                onChange={(e) => updateColorStock(vIdx, cIdx, e.target.value)}
+                                onChange={(e) =>
+                                  updateColorStock(vIdx, cIdx, e.target.value)
+                                }
                                 className="w-24 p-1 border rounded text-center"
                               />
-                              <span className="text-sm text-gray-500">items</span>
+                              <span className="text-sm text-gray-500">
+                                items
+                              </span>
+                              {color.preview && (
+                                <img
+                                  src={color.preview}
+                                  className="w-8 h-8 rounded object-cover"
+                                  alt={color.name}
+                                />
+                              )}
                             </div>
                           ))}
                         </div>
-                        
+
                         <div className="mt-2 text-sm text-gray-600">
                           Total Stock: {variant.totalStock} items
                         </div>

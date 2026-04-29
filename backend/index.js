@@ -7,6 +7,8 @@ import cors from "cors";
 import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 import { connectDB } from "./config/db.js";
 
@@ -34,6 +36,12 @@ app.get("/", (req, res) => {
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", chatRoutes);
+app.use("/api/cart", cartRoutes);
+
+
+app.use("/api/payments", paymentRoutes);
+
+
 
 // Server
 const PORT = process.env.PORT || 5000;

@@ -9,16 +9,21 @@ import Signup from "./auth/register";
 import ProtectedRoute from "./routes/protectedRoutes";
 import Otp from "./auth/otp";
 import Chat from "./pages/chat";
+import Cart from "./pages/cart";           
+import Checkout from "./pages/Checkout";   
+import Payment from "./pages/Payment";     
+import PaymentSuccess from "./pages/PaymentSuccess";
+import FloatingCartButton from "./components/floatingCartButton"; 
 
 // token check helper
 const isAuth = () => {
   return localStorage.getItem("token");
 };
 
-// Public Route Guard (IMPORTANT FIX)
+// Public Route Guard
 const PublicRoute = ({ children }) => {
   if (isAuth()) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;  
   }
   return children;
 };
@@ -101,9 +106,49 @@ function App() {
           }
         />
 
+        {/* 🛒 Cart & Checkout Routes */}
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/payment-success"
+          element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Catch-all route for undefined paths */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
+      {/* ✅ FloatingCartButton - Shows on all pages when user is logged in */}
+      <FloatingCartButton />
     </BrowserRouter>
   );
 }

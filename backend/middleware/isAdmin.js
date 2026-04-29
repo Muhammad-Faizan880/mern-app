@@ -3,5 +3,5 @@ export const isAdmin = (req, res, next) => {
     return res.status(403).json({ message: "Only admin allowed" });
   }
 
-  next(); // 👉 admin hai to allow
+  next(); 
 };
